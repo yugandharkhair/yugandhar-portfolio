@@ -1,0 +1,58 @@
+[
+	{
+		"__TYPE__": "SharedSliceContent",
+		"variation": "default",
+		"primary": {
+			"heading": {
+				"__TYPE__": "FieldContent",
+				"value": "high",
+				"type": "Text"
+			}
+		},
+		"items": [
+			{
+				"__TYPE__": "GroupItemContent",
+				"value": [
+					[
+						"title",
+						{
+							"__TYPE__": "FieldContent",
+							"value": "surface",
+							"type": "Text"
+						}
+					],
+					[
+						"time",
+						{
+							"__TYPE__": "FieldContent",
+							"value": "flag",
+							"type": "Text"
+						}
+					],
+					[
+						"institution",
+						{
+							"__TYPE__": "FieldContent",
+							"value": "wash",
+							"type": "Text"
+						}
+					],
+					[
+						"desc",
+						{
+							"__TYPE__": "StructuredTextContent",
+							"value": [
+								{
+									"type": "paragraph",
+									"content": {
+										"text": "Quis mollit non nostrud laborum."
+									}
+								}
+							]
+						}
+					]
+				]
+			}
+		]
+	}
+]
