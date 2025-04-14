@@ -22,21 +22,25 @@ const ContentIndex = async ({ slice }: ContentIndexProps): Promise<JSX.Element> 
 
   const items = contentType === "Blog" ? blogPosts : projects;
 
-
   return (
     <Bounded
       data-slice-type={slice.slice_type}
       data-slice-variation={slice.variation}
     >
-    <Heading size="xl" className="mb-8">
-      {slice.primary.heading}
-    </Heading>
-    {isFilled.richText(slice.primary.desc) && (
-      <div className="prose prose-xl prose-invert mb-10">
-        <PrismicRichText field={slice.primary.desc} />
-      </div>
-    )}
-    <ContentList items={items} contentType={contentType} viewMoreText = {slice.primary.view_more_text} fallbackItemImage = {slice.primary.fallback_item_image}/>
+      <Heading size="xl" className="mb-8">
+        {slice.primary.heading}
+      </Heading>
+      {isFilled.richText(slice.primary.desc) && (
+        <div className="prose prose-xl prose-invert mb-10">
+          <PrismicRichText field={slice.primary.desc} />
+        </div>
+      )}
+      <ContentList 
+        items={items} 
+        contentType={contentType} 
+        viewMoreText={slice.primary.view_more_text} 
+        fallbackItemImage={slice.primary.fallback_item_image}
+      />
     </Bounded>
   );
 };

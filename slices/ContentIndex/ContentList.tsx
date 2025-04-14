@@ -2,10 +2,11 @@
 
 import { Content, asImageSrc, isFilled } from "@prismicio/client";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { MdArrowOutward } from "react-icons/md";
 import { gsap } from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { PrismicNextImage } from "@prismicio/next";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,16 +24,12 @@ export default function ContentList({
   viewMoreText = "Read More",
 }: ContentListProps) {
   const component = useRef(null);
-  const revealRef = useRef(null);
-  const itemsRef = useRef<Array<HTMLLIElement | null>>([]);
-  const [currentItem, setCurrentItem] = useState<null | number>(null);
-
-  const lastMousePos = useRef({ x: 0, y: 0 });
+  const itemsRef = useRef<Array<HTMLDivElement | null>>([]);
 
   const urlPrefix = contentType === "Blog" ? "/blog" : "/projects";
 
   useEffect(() => {
-    // Animate list-items in with a stagger
+    // Animate grid items in with a stagger
     let ctx = gsap.context(() => {
       itemsRef.current.forEach((item, index) => {
         gsap.fromTo(
@@ -60,124 +57,62 @@ export default function ContentList({
     }, component);
   }, []);
 
+  // Preload images
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const mousePos = { x: e.clientX, y: e.clientY + window.scrollY };
-
-      //calculate speed and direction
-      const speed = Math.sqrt(Math.pow(mousePos.x - lastMousePos.current.x, 2));
-
-      let ctx = gsap.context(() => {
-        if (currentItem !== null) {
-          const maxY = window.scrollY + window.innerHeight - 350;
-          const maxX = window.innerWidth - 250;
-
-          gsap.to(revealRef.current, {
-            x: gsap.utils.clamp(0, maxX, mousePos.x - 110),
-            y: gsap.utils.clamp(0, maxY, mousePos.y - 160),
-            rotation: speed * (mousePos.x > lastMousePos.current.x ? 1 : -1), // Apply rotation based on speed and direction
-            ease: "back.out(2)",
-            duration: 1.3,
-            opacity: 1,
-          });
-          //   gsap.to(revealRef.current, {
-          //     opacity: hovering ? 1 : 0,
-          //     visibility: "visible",
-          //     ease: "power3.out",
-          //     duration: 0.4,
-          //   });
-        }
-        lastMousePos.current = mousePos;
-        return () => ctx.revert();
-      }, component);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [currentItem]);
-
-  const contentImages = items.map((item) => {
-    const image = isFilled.image(item.data.hover_image)
-      ? item.data.hover_image
-      : fallbackItemImage;
-
-    return asImageSrc(image, {
-      fit: "crop",
-      w: 220,
-      h: 320,
-      exp: -16.5,
+    items.forEach((item) => {
+      const image = isFilled.image(item.data.hover_image)
+        ? item.data.hover_image
+        : fallbackItemImage;
+      
+      if (isFilled.image(image)) {
+        const img = new Image();
+        img.src = asImageSrc(image, {
+          fit: "crop",
+          w: 400,
+          h: 300,
+        }) || "";
+      }
     });
-  });
-
-  const onMouseEnter = (index: number) => {
-    setCurrentItem(index);
-  };
-
-  const onMouseLeave = () => {
-    setCurrentItem(null);
-  };
-   // Preload images
-   useEffect(() => {
-    contentImages.forEach((url) => {
-      if (!url) return;
-      const img = new Image();
-      img.src = url;
-    });
-  }, [contentImages]);
+  }, [items, fallbackItemImage]);
 
   return (
     <div ref={component}>
-      <ul
-        className="grid border-b border-b-slate-100"
-        onMouseLeave={onMouseLeave}
-      >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((item, index) => (
-          <>
+          <React.Fragment key={index}>
             {isFilled.keyText(item.data.title) && (
-              <li
-                key={index}
-                className="list-item opacity-0"
-                onMouseEnter={() => onMouseEnter(index)}
+              <div
+                className="project-card opacity-0 flex flex-col bg-slate-800 rounded-lg overflow-hidden border border-slate-700 hover:shadow-lg hover:border-yellow-400"
                 ref={(el) => (itemsRef.current[index] = el)}
               >
-                <Link
-                  href={urlPrefix + "/" + item.uid}
-                  className="flex flex-col justify-between border-t border-t-slate-100 py-10 text-slate-200 md:flex-row"
-                  aria-label={item.data.title}
-                >
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-bold">
-                      {item.data.title}
-                    </span>
-                    <div className="flex gap-3 text-yellow-400 text-lg font-bold">
-                      {item.tags.map((tag, index) => (
-                        <span key={index}>{tag}</span>
+                <Link href={urlPrefix + "/" + item.uid} aria-label={item.data.title} className="flex flex-col h-full">
+                  <div className="project-image relative aspect-video overflow-hidden">
+                    <PrismicNextImage
+                      field={isFilled.image(item.data.hover_image) ? item.data.hover_image : fallbackItemImage}
+                      className="w-full h-full object-cover"
+                      imgixParams={{ fit: "crop", w: 600, h: 340, exp: -1 }}
+                    />
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-xl font-bold text-slate-200 mb-3">{item.data.title}</h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {item.tags.map((tag, tagIndex) => (
+                        <span key={tagIndex} className="text-sm font-medium text-yellow-400 bg-slate-700 px-2 py-1 rounded-md">
+                          {tag}
+                        </span>
                       ))}
                     </div>
+                    <div className="flex items-center mt-auto pt-3 text-slate-300 text-sm font-medium">
+                      <span>{viewMoreText}</span>
+                      <MdArrowOutward className="ml-1" />
+                    </div>
                   </div>
-                  <span className="ml-auto flex items-center gap-2 text-xl font-medium md:md-0">
-                    {viewMoreText} <MdArrowOutward />{" "}
-                  </span>
                 </Link>
-              </li>
+              </div>
             )}
-          </>
+          </React.Fragment>
         ))}
-      </ul>
-
-      {/* Hover Element: */}
-
-      <div
-        className="hover-reveal pointer-events-none absolute left-0 top-0 -z-10 h-[320px] w-[220px] rounded-lg bg-cover bg-center opacity-0f transition-[background] duration-300"
-        style={{
-          backgroundImage:
-            currentItem !== null ? `url(${contentImages[currentItem]})` : "",
-        }}
-        ref={revealRef}
-      ></div>
+      </div>
     </div>
   );
 }
