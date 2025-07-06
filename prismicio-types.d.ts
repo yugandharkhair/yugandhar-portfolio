@@ -250,6 +250,19 @@ interface ProjectDocumentData {
   title: prismic.KeyTextField;
 
   /**
+   * Category field in *Project*
+   *
+   * - **Field Type**: Select
+   * - **Placeholder**: Select project category
+   * - **API ID Path**: project.category
+   * - **Tab**: Main
+   * - **Documentation**: https://prismic.io/docs/field#select
+   */
+  category: prismic.SelectField<
+    "Hackathon Wins" | "Mobile Dev" | "Web Dev" | "Other"
+  >;
+
+  /**
    * Date field in *Project*
    *
    * - **Field Type**: Date
@@ -587,7 +600,7 @@ export interface ContentIndexSliceDefaultPrimary {
    * - **API ID Path**: content_index.primary.content_type
    * - **Documentation**: https://prismic.io/docs/field#select
    */
-  content_type: prismic.SelectField<"Blog" | "Project">;
+  content_type: prismic.SelectField<"Blog" | "Project" | "My Work">;
 
   /**
    * Desc field in *ContentIndex → Primary*

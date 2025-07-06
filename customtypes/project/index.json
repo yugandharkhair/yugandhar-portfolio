@@ -19,6 +19,14 @@
         },
         "type": "UID"
       },
+      "category": {
+        "type": "Select",
+        "config": {
+          "label": "Category",
+          "placeholder": "Select project category",
+          "options": ["Hackathon Wins", "Mobile Dev", "Web Dev", "Other"]
+        }
+      },
       "date": {
         "type": "Date",
         "config": {
